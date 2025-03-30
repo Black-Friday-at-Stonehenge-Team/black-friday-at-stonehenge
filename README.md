@@ -1,1 +1,1 @@
-# black-friday-at-stonehenge
+# Black Friday at Stonehenge
