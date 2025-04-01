@@ -14,10 +14,10 @@ class ObstacleManager:
 
     def _get_gaussian_interval(self):
         """Returns a random interval using Gaussian distribution"""
-        mean = 1500  # Mean time between obstacles (ms)
+        mean = 2500  # Mean time between obstacles (ms)
         std_dev = 400  # Standard deviation (ms)
         interval = random.normal(mean, std_dev)
-        return max(800, min(interval, 2500))
+        return max(2000, min(interval, 3000))
 
     def update(self):
         current_time = pygame.time.get_ticks()

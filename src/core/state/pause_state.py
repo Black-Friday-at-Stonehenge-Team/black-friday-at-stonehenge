@@ -42,14 +42,17 @@ class PauseState(State):
     def handle_menu_selection(self):
         if self.selected_option == 0:
             from .play_state import PlayState
+
             # Resume the game
             self.game.set_state(PlayState(self.game, self.play_state))
         elif self.selected_option == 1:
             from .play_state import PlayState
+
             # Restart the game
             self.game.set_state(PlayState(self.game))
         elif self.selected_option == 2:
             from .menu_state import MenuState
+
             # Quit to menu
             self.game.set_state(MenuState(self.game))
 

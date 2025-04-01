@@ -1,8 +1,8 @@
 import pygame
 
-from core.state import MenuState, PlayState, PauseState, GameOverState
+from core.state import MenuState
 
-FPS = 120
+FPS = 60
 
 
 class Game:
