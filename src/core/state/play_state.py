@@ -22,7 +22,6 @@ class PlayState(State):
         # Initialize obstacle manager
         if previous_state and hasattr(previous_state, "obstacle_manager"):
             self.obstacle_manager = previous_state.obstacle_manager
-            self.obstacle_manager.reset()
         else:
             self.obstacle_manager = ObstacleManager(
                 self.game.width, self.game.height - 100
@@ -41,9 +40,12 @@ class PlayState(State):
         )
 
     def update(self):
-        # Update player and obstacles
         self.player.update(self.ground_level)
-        passed_obstacles = self.obstacle_manager.update()
+        self.obstacle_manager.update()
+
+        passed_obstacles = self.obstacle_manager.get_passed_obstacles(
+            self.player.rect.left
+        )
         self.score += passed_obstacles
 
         # Check for collisions
