@@ -10,6 +10,7 @@ class PauseState(State):
         self.font_medium = pygame.font.SysFont("Arial", 30)
         self.selected_option = 0  # 0: Resume, 1: Restart, 2: Quit to Menu
         self.options = ["Resume (P)", "Restart (R)", "Quit to Menu (Q)"]
+        self.pause_start = pygame.time.get_ticks()  # Record when the pause started
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -17,9 +18,7 @@ class PauseState(State):
                 self.game.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:  # Resume the game
-                    from .play_state import PlayState
-
-                    self.game.set_state(PlayState(self.game, self.play_state))
+                    self._resume_game()
                 elif event.key == pygame.K_r:  # Restart the game
                     from .play_state import PlayState
 
@@ -41,20 +40,24 @@ class PauseState(State):
 
     def handle_menu_selection(self):
         if self.selected_option == 0:
-            from .play_state import PlayState
-
-            # Resume the game
-            self.game.set_state(PlayState(self.game, self.play_state))
+            self._resume_game()
         elif self.selected_option == 1:
             from .play_state import PlayState
 
-            # Restart the game
             self.game.set_state(PlayState(self.game))
         elif self.selected_option == 2:
             from .menu_state import MenuState
 
-            # Quit to menu
             self.game.set_state(MenuState(self.game))
+
+    def _resume_game(self):
+        pause_duration = pygame.time.get_ticks() - self.pause_start
+
+        self.play_state.obstacle_manager.last_obstacle_time += pause_duration
+
+        from .play_state import PlayState
+
+        self.game.set_state(PlayState(self.game, self.play_state))
 
     def update(self):
         pass

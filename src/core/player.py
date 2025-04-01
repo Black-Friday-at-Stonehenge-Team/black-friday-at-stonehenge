@@ -12,14 +12,14 @@ class Player:
         self.y = y
         self.velocity = 0
         self.gravity = 1
-        self.jump_velocity = -22.5
+        self.jump_velocity = -25
         self.is_grounded = True
 
         # Animation properties
         self.sprite_sheet = None
         self.frames = []
         self.current_frame = 0
-        self.animation_speed = 0.2
+        self.animation_speed = 0.15
         self.animation_timer = 0
 
         # Player scale
