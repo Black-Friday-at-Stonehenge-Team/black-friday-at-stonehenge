@@ -26,7 +26,7 @@ class Player:
         self.scale = 5
 
         # Offset to sprite positioning
-        self.sprite_offset_x = 0
+        self.sprite_offset_x = -2
         self.sprite_offset_y = 0
 
         # Fallback player sprite
@@ -151,7 +151,7 @@ class Player:
             surface.blit(current_img, (sprite_x, sprite_y))
 
             # Player hitbox
-            # pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
+            pygame.draw.rect(surface, (255, 0, 0), self.rect, 1)
         else:
             # Fallback player sprite
             pygame.draw.rect(surface, color, self.rect)

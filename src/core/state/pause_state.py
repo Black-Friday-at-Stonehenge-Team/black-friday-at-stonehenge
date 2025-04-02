@@ -53,7 +53,7 @@ class PauseState(State):
     def _resume_game(self):
         pause_duration = pygame.time.get_ticks() - self.pause_start
 
-        self.play_state.obstacle_manager.last_obstacle_time += pause_duration
+        self.play_state.obstacle_manager.pause_accumulated_time += pause_duration
 
         from .play_state import PlayState
 

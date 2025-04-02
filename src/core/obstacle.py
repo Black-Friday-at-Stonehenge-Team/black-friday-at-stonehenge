@@ -1,16 +1,29 @@
 import pygame
 
 
-class Obstacle:
-    def __init__(self, x, y, width=30, height=30, speed=5):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.speed = speed
-        self.active = True
+class BaseObstacle:
+    def __init__(self, x, y, texture):
+        self.x = x
+        self.y = y
+        self.texture = texture
+        self.rect = pygame.Rect(x, y, texture.get_width(), texture.get_height())
 
     def update(self):
-        self.rect.x -= self.speed
-        if self.rect.right < 0:
-            self.active = False
+        self.x -= 10
+        self.rect.x = self.x
 
-    def draw(self, surface, color=(255, 0, 0)):
-        pygame.draw.rect(surface, color, self.rect)
+    def draw(self, surface):
+        if self.texture:
+            surface.blit(self.texture, (self.x, self.y))
+
+
+class SmallObstacle(BaseObstacle):
+    pass
+
+
+class TallObstacle(BaseObstacle):
+    pass
+
+
+class WideObstacle(BaseObstacle):
+    pass
