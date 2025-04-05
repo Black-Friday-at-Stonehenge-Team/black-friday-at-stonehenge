@@ -4,7 +4,11 @@ from core.logs import get_logger
 from core.player import Player
 from core.obstacle_manager import ObstacleManager
 from core.ground import Ground
-from .state import State
+from core.state import State
+from core.state import GameOverState
+from core.font import Font
+from core.text import Text
+from core.tiling_background import TilingBackground
 
 logger = get_logger("PlayState")
 
@@ -30,7 +34,28 @@ class PlayState(State):
         # Game state
         self.score = previous_state.score if previous_state else 0
         self.ground_level = self.game.height - 100
-        self.font = pygame.font.SysFont("Arial", 30)
+
+        bg_scale = 16
+        # Initialize the tiling background
+        self.background = TilingBackground(
+            image="background_bricks.png", unit_size=(50 * bg_scale, 33 * bg_scale)
+        )
+
+        # Fonts
+        self.score_font = Font(
+            "antiquity-print.ttf",
+            39,
+            (255, 255, 255),
+            shadow=True,
+            shadow_offset=(2, 2),
+        )
+        self.pause_font = Font(
+            "antiquity-print.ttf",
+            26,
+            (255, 255, 255),
+            shadow=True,
+            shadow_offset=(3, 3),
+        )
 
         # Initialize ground object
         self.ground = Ground(
@@ -51,7 +76,6 @@ class PlayState(State):
         # Check for collisions
         if self.obstacle_manager.check_collisions(self.player.rect):
             self.game.high_score = max(self.game.high_score, self.score)
-            from .game_over_state import GameOverState
 
             self.game.set_state(GameOverState(self.game))
 
@@ -64,32 +88,52 @@ class PlayState(State):
                     from .pause_state import PauseState
 
                     self.game.set_state(PauseState(self.game, self))
+                elif event.key == pygame.K_ESCAPE:
+                    from .pause_state import PauseState
+
+                    self.game.set_state(PauseState(self.game, self))
                 elif event.key == pygame.K_SPACE:
                     self.player.jump()
 
     def render(self):
-        # Draw background
-        self.game.screen.fill((91, 110, 225))
+        # Render the tiling background
+        self.background.render(self.game.screen)
 
         # Render the ground
         self.ground.render(self.game.screen)
 
-        # Draw game elements
+        # Render the player and obstacles
         self.player.draw(self.game.screen)
         self.obstacle_manager.draw(self.game.screen)
 
-        # Draw UI elements
-        score_text = self.font.render(f"Score: {self.score}", True, (0, 0, 0))
-        self.game.screen.blit(score_text, (20, 20))
-        high_score = self.game.high_score
-        if high_score > 0:
-            high_score_text = self.font.render(
-                f"High Score: {high_score}", True, (0, 0, 0)
-            )
-            self.game.screen.blit(high_score_text, (20, 60))
-        pause_text = self.font.render("Press P to pause", True, (255, 255, 255))
-        self.game.screen.blit(
-            pause_text, (self.game.width - pause_text.get_width() - 20, 20)
+        # Render the score
+        score_text = Text(
+            f"Score: {self.score:03}",
+            self.score_font,
+            position=(20, 20),
         )
+        score_text.render(self.game.screen)
+
+        # Render the high score
+        if self.game.high_score > 0:
+            high_score_text = Text(
+                f"High Score: {self.game.high_score:03}",
+                self.score_font,
+                position=(20, 90),
+            )
+            high_score_text.render(self.game.screen)
+
+        # Render the pause instructions
+        pause_text = Text(
+            "Press P or ESC to pause",
+            self.pause_font,
+            position=(
+                self.game.width
+                - self.pause_font.render("Press P or ESC to pause").get_width()
+                - 30,
+                20,
+            ),
+        )
+        pause_text.render(self.game.screen)
 
         pygame.display.flip()
