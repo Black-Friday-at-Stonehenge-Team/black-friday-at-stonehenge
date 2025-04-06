@@ -62,7 +62,13 @@ class PlayState(State):
             screen_width=self.game.width,
             screen_height=self.game.height,
             ground_level=self.ground_level,
+            image="ground_tile.png",
         )
+
+        # Scrolling attributes
+        self.scroll_speed = 5
+        self.background_offset = 0
+        self.ground_offset = 0
 
     def update(self):
         self.player.update(self.ground_level)
@@ -78,6 +84,14 @@ class PlayState(State):
             self.game.high_score = max(self.game.high_score, self.score)
 
             self.game.set_state(GameOverState(self.game))
+
+        # Update scrolling offsets
+        self.background_offset = (self.background_offset - self.scroll_speed) % (
+            self.background.unit_size[0]
+        )
+        self.ground_offset = (self.ground_offset - 2 * self.scroll_speed) % (
+            self.ground.tile_width
+        )
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -96,11 +110,16 @@ class PlayState(State):
                     self.player.jump()
 
     def render(self):
-        # Render the tiling background
-        self.background.render(self.game.screen)
+        # Render the scrolling background
+        for x in range(
+            -self.background.unit_size[0], self.game.width, self.background.unit_size[0]
+        ):
+            self.background.render(
+                self.game.screen, offset_x=x + self.background_offset
+            )
 
-        # Render the ground
-        self.ground.render(self.game.screen)
+        # Render the scrolling ground
+        self.ground.render(self.game.screen, offset_x=self.ground_offset)
 
         # Render the player and obstacles
         self.player.draw(self.game.screen)
