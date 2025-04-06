@@ -1,6 +1,5 @@
-import os
-import random
 import pygame
+from pathlib import Path
 from core.logs import get_logger
 
 logger = get_logger("Ground")
@@ -8,99 +7,32 @@ logger = get_logger("Ground")
 
 class Ground:
     def __init__(
-        self,
-        screen_width,
-        screen_height,
-        ground_level,
+        self, screen_width, screen_height, ground_level, image="ground_tile.png"
     ):
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.ground_level = ground_level
 
-        self.tile_cell_width, self.tile_cell_height = 32, 32
-        self.ground_tile_height = 11
-        self.scale = 5
-
-        self.ground_textures = []
-        self.ground_surface = None
-
-        self._load_ground_textures("assets/ground/ground.png")
-        self._create_ground_surface()
-
-    def _load_ground_textures(self, tileset_path):
-        tile_width = self.tile_cell_width
-        tile_height = self.ground_tile_height
-
-        if not os.path.exists(tileset_path):
-            logger.warning(f"Tileset '{tileset_path}' not found. Using fallback color.")
-            fallback = pygame.Surface(
-                (tile_width * self.scale, tile_height * self.scale)
-            )
-            fallback.fill((139, 69, 19))
-            self.ground_textures.append(fallback)
-            return
-
+        # Load the tileable ground image
+        self.image_path = (
+            Path(__file__).parent.parent.parent / "assets" / "ground" / image
+        )
         try:
-            tileset = pygame.image.load(tileset_path).convert_alpha()
-            tileset_width, _ = tileset.get_size()
-            columns = tileset_width // tile_width
+            self.ground_image = pygame.image.load(self.image_path).convert_alpha()
+        except FileNotFoundError:
+            logger.error(f"Ground image '{image}' not found. Using fallback color.")
+            self.ground_image = pygame.Surface((100, 50))  # Fallback size
+            self.ground_image.fill((139, 69, 19))  # Brown color
 
-            for col in range(columns):
-                tile_x = col * tile_width
-                # Extract the bottom portion (ground_tile_height) of each cell
-                tile_y = self.tile_cell_height - tile_height
-                tile = pygame.Surface((tile_width, tile_height), pygame.SRCALPHA)
-                tile.blit(tileset, (0, 0), (tile_x, tile_y, tile_width, tile_height))
-
-                scaled_tile = pygame.transform.scale(
-                    tile, (tile_width * self.scale, tile_height * self.scale)
-                )
-                self.ground_textures.append(scaled_tile)
-            logger.debug(f"Loaded {len(self.ground_textures)} ground textures")
-        except Exception as e:
-            logger.error(f"Error loading ground textures: {e}")
-            fallback = pygame.Surface(
-                (tile_width * self.scale, tile_height * self.scale)
-            )
-            fallback.fill((139, 69, 19))
-            self.ground_textures.append(fallback)
-
-    def _create_ground_surface(self):
-        if not self.ground_textures:
-            self.ground_surface = None
-            return
-
-        tile_width = self.ground_textures[0].get_width()
-        tile_height = self.ground_textures[0].get_height()
-        ground_area_height = self.screen_height - self.ground_level
-
-        self.ground_surface = pygame.Surface(
-            (self.screen_width, ground_area_height), pygame.SRCALPHA
+        # Scale the ground image if necessary
+        self.ground_image = pygame.transform.scale(
+            self.ground_image,
+            (self.ground_image.get_width(), self.ground_image.get_height()),
         )
 
-        rows = ground_area_height // tile_height + 1
-        cols = self.screen_width // tile_width + 1
+        self.tile_width = self.ground_image.get_width()
 
-        for row in range(rows):
-            for col in range(cols):
-                tile = random.choice(self.ground_textures)
-                x = col * tile_width
-                y = row * tile_height
-                self.ground_surface.blit(tile, (x, y))
-
-    def render(self, surface):
-        if self.ground_surface:
-            # Use the cached ground surface
-            surface.blit(self.ground_surface, (0, self.ground_level))
-        else:
-            # Fallback ground tile
-            pygame.draw.rect(
-                surface,
-                (139, 69, 19),
-                (
-                    0,
-                    self.ground_level,
-                    self.screen_width,
-                    self.screen_height - self.ground_level,
-                ),
-            )
+    def render(self, surface, offset_x=0):
+        # Draw the ground image repeatedly across the screen width
+        for x in range(-self.tile_width, self.screen_width, self.tile_width):
+            surface.blit(self.ground_image, (x + offset_x, self.ground_level))

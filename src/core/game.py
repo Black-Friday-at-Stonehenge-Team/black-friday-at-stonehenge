@@ -1,5 +1,4 @@
 import pygame
-from core.state import MenuState
 from core.logs import get_logger
 
 logger = get_logger("Game")
@@ -24,6 +23,8 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.running = True
+
+        from core.state.menu_state import MenuState
 
         self.state = MenuState(self)
         logger.info("Game initialized")
