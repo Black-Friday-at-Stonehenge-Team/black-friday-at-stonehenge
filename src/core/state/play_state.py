@@ -4,6 +4,7 @@ from core.logs import get_logger
 from core.player import Player
 from core.obstacle_manager import ObstacleManager
 from core.ground import Ground
+from core.sound_controller import SoundController
 from core.state import State
 from core.state import GameOverState
 from core.font import Font
@@ -22,6 +23,26 @@ class PlayState(State):
             self.player = previous_state.player
         else:
             self.player = Player(100, self.game.height - 100)
+
+        sound_config = {
+            "window_size": 150,
+            "z_threshold": 3.0,
+            "holdoff_time": 0.2,
+            "sensitivity": 0.50,
+            "port": self.game.sound_port,
+            "baudrate": self.game.sound_baudrate,
+            "noise_floor": 100,
+        }
+
+        # Get Singleton instance of sound controller
+        try:
+            self.sound_controller = SoundController.get_instance(
+                sound_config, self.player.jump
+            )
+            logger.info("Sound controller initialized or reused")
+        except Exception as e:
+            logger.error(f"Failed to initialize sound controller: {str(e)}")
+            self.sound_controller = None
 
         # Initialize obstacle manager
         if previous_state and hasattr(previous_state, "obstacle_manager"):
@@ -108,6 +129,8 @@ class PlayState(State):
                     self.game.set_state(PauseState(self.game, self))
                 elif event.key == pygame.K_SPACE:
                     self.player.jump()
+            elif event.type == pygame.USEREVENT and event.action == "SOUND_TRIGGER":
+                self.player.jump()
 
     def render(self):
         # Render the scrolling background
