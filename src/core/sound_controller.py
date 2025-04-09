@@ -113,6 +113,7 @@ class SoundController:
 
                     if self.update(value):
                         logger.info("Sound trigger detected!")
+
                         # Add new SOUND_TRIGGER event to the pygame event queue
                         pygame.event.post(
                             pygame.event.Event(
