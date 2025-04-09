@@ -112,7 +112,8 @@ class SoundController:
                     value = struct.unpack("<H", data)[0]
 
                     if self.update(value):
-                        logger.info("Sound trigger detected! Jumping...")
+                        logger.info("Sound trigger detected!")
+
                         # Add new SOUND_TRIGGER event to the pygame event queue
                         pygame.event.post(
                             pygame.event.Event(

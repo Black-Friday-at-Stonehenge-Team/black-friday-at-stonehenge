@@ -12,8 +12,8 @@ class Game:
         self.height = height
         self.title = title
         self.high_score = 0
-        self.game.sound_port = "COM11"
-        self.game.sound_baudrate = 115200
+        self.sound_port = "COM11"
+        self.sound_baudrate = 115200
 
         # Initialize pygame
         pygame.init()

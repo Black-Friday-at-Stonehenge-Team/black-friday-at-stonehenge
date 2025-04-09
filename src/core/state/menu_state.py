@@ -44,8 +44,8 @@ class MenuState(State):
         )
 
         # Menu options
-        self.selected_option = 0  # 0: Start Game, 1: Quit
-        self.options = ["Start Game", "Quit"]
+        self.selected_option = 0  # 0: Start Game, 1: Options, 2: Quit
+        self.options = ["Start Game", "Options", "Quit"]
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -71,7 +71,11 @@ class MenuState(State):
             from .play_state import PlayState
 
             self.game.set_state(PlayState(self.game))
-        elif self.selected_option == 1:  # Quit
+        elif self.selected_option == 1:  # Options
+            from .options_state import OptionsState
+
+            self.game.set_state(OptionsState(self.game, self))
+        elif self.selected_option == 2:  # Quit
             self.game.running = False
 
     def update(self):
